@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Solver PWA</title>
+    <meta name="description" content="Advanced Calculus PWA with step-by-step solutions and graphing">
+    <meta name="theme-color" content="#3f51b5">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.20.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.6.0/lib/browser/math.min.js"></script>
+    <style>
+        :root {
+            --primary: #3f51b5;
+            --primary-dark: #303f9f;
+            --primary-light: #c5cae9;
+            --secondary: #ff4081;
+            --light: #f5f5f5;
+            --dark: #212121;
+            --gray: #757575;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --error: #f44336;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+            max-width: 100vw;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .app-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .install-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .install-btn:hover {
+            background-color: #e91e63;
+        }
+        
+        /* Main content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            padding: 1.5rem;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .left-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .right-panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* Card styling */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .card-header {
+            background-color: var(--primary-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .card-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Calculator */
+        .calculator-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .problem-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-family: 'Source Code Pro', monospace;
+            resize: vertical;
+            background-color: #fafafa;
+        }
+        
+        .problem-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
+        }
+        
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .calc-btn {
+            padding: 0.8rem 0.5rem;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-family: 'Source Code Pro', monospace;
+        }
+        
+        .calc-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .calc-btn.primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+        
+        .calc-btn.primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .calc-btn.secondary {
+            background-color: var(--secondary);
+            color: white;
+            border-color: #e91e63;
+        }
+        
+        .calc-btn.secondary:hover {
+            background-color: #e91e63;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.9rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .solve-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .solve-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .clear-btn {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            border: 1px solid #ddd;
+        }
+        
+        .clear-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* Solution steps */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .step {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 1.2rem;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .step:nth-child(2) {
+            border-left-color: var(--secondary);
+        }
+        
+        .step:nth-child(3) {
+            border-left-color: var(--success);
+        }
+        
+        .step:nth-child(4) {
+            border-left-color: var(--warning);
+        }
+        
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .step-number {
+            background-color: var(--primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+        
+        .step-content {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .step-equation {
+            font-family: 'Source Code Pro', monospace;
+            background-color: #f0f0f0;
+            padding: 0.8rem;
+            border-radius: 4px;
+            margin: 0.8rem 0;
+            overflow-x: auto;
+        }
+        
+        /* Graph container */
+        .graph-container {
+            height: 400px;
+            width: 100%;
+        }
+        
+        /* PWA Installation */
+        .pwa-install {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            max-width: 350px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .pwa-install.show {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .pwa-install h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .pwa-install p {
+            color: var(--gray);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .pwa-install-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .pwa-install-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .pwa-install-confirm {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .pwa-install-cancel {
+            background-color: #f5f5f5;
+            color: var(--dark);
+        }
+        
+        /* Footer */
+        .app-footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .app-footer p {
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            .left-panel, .right-panel {
+                width: 100%;
+            }
+            
+            .logo h1 {
+                font-size: 1.3rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .pwa-install {
+                left: 20px;
+                right: 20px;
+                max-width: none;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .calculator-buttons {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-calculator"></i>
+                    <h1>Calculus Solver </h1>
+                </div>
+                <button class="install-btn" id="installButton">
+                    <i class="fas fa-download"></i>
+                    Install App
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="left-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-calculator"></i> Calculus Calculator</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="calculator-container">
+                            <textarea 
+                                id="problemInput" 
+                                class="problem-input" 
+                                placeholder="Enter your calculus problem here (e.g., derivative of x^2, integrate sin(x), limit of (sin x)/x as x->0)"
+                            >derivative of x^2 + 3x + sin(x)</textarea>
+                            
+                            <div class="calculator-buttons">
+                                <button class="calc-btn" data-input="^">^ (power)</button>
+                                <button class="calc-btn" data-input="√">√ (sqrt)</button>
+                                <button class="calc-btn" data-input="π">π</button>
+                                <button class="calc-btn" data-input="e">e</button>
+                                <button class="calc-btn" data-input="sin(">sin( )</button>
+                                <button class="calc-btn" data-input="cos(">cos( )</button>
+                                <button class="calc-btn" data-input="tan(">tan( )</button>
+                                <button class="calc-btn" data-input="ln(">ln( )</button>
+                                <button class="calc-btn" data-input="log(">log( )</button>
+                                <button class="calc-btn" data-input="(">(</button>
+                                <button class="calc-btn" data-input=")">)</button>
+                                <button class="calc-btn" data-input="lim(x->">limit</button>
+                                <button class="calc-btn" data-input="∫(">integral</button>
+                                <button class="calc-btn" data-input="d/dx">derivative</button>
+                                <button class="calc-btn" data-input="+">+</button>
+                                <button class="calc-btn" data-input="-">-</button>
+                                <button class="calc-btn" data-input="*">×</button>
+                                <button class="calc-btn" data-input="/">÷</button>
+                                <button class="calc-btn" data-input="x">x</button>
+                                <button class="calc-btn" data-input="y">y</button>
+                                <button class="calc-btn" data-input="=">=</button>
+                                <button class="calc-btn primary" data-input="clear">C</button>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="solveBtn" class="action-btn solve-btn">
+                                    <i class="fas fa-play-circle"></i> Solve Calculus Problem
+                                </button>
+                                <button id="clearBtn" class="action-btn clear-btn">
+                                    <i class="fas fa-eraser"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-chart-line"></i> Graph Visualization</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="graphContainer" class="graph-container">
+                            <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--gray);">
+                                <div style="text-align: center;">
+                                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                    <p>Graph will appear here when solving calculus problems</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="right-panel">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list-ol"></i> Step-by-Step Solution</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="stepsContainer" class="steps-container">
+                            <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                                <i class="fas fa-lightbulb" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <h3>No Solution Yet</h3>
+                                <p>Enter a calculus problem and click "Solve" to see step-by-step solution</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-history"></i> Recent Problems</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul id="recentProblems" style="list-style-type: none;">
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee; color: var(--gray);">
+                                <i class="far fa-clock"></i> No recent problems
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p><strong>Calculus Solver </strong> - Advanced calculus calculator with step-by-step solutions</p>
+                <p>Suppits derivatives, integrals, limits, and function visualization</p>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">© 2026 Calculus Solver . All rights reserved Playmaker.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PWA Install Prompt -->
+    <div id="pwaInstall" class="pwa-install">
+        <h3>Install Calculus Solver</h3>
+        <p>Install this app on your device for offline access and faster loading.</p>
+        <div class="pwa-install-buttons">
+            <button id="pwaInstallConfirm" class="pwa-install-btn pwa-install-confirm">Install</button>
+            <button id="pwaInstallCancel" class="pwa-install-btn pwa-install-cancel">Not Now</button>
+        </div>
+    </div>
+
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+        const pwaInstall = document.getElementById('pwaInstall');
+        const pwaInstallConfirm = document.getElementById('pwaInstallConfirm');
+        const pwaInstallCancel = document.getElementById('pwaInstallCancel');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'flex';
+            
+            // Show custom install prompt after 5 seconds
+            setTimeout(() => {
+                if (localStorage.getItem('pwaInstallDismissed') !== 'true') {
+                    pwaInstall.classList.add('show');
+                }
+            }, 5000);
+        });
+        
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installButton.style.display = 'none';
+                    pwaInstall.classList.remove('show');
+                }
+                deferredPrompt = null;
+            }
+        });
+        
+        pwaInstallConfirm.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    installButton.style.display = 'none';
+                }
+                pwaInstall.classList.remove('show');
+                deferredPrompt = null;
+            }
+        });
+        
+        pwaInstallCancel.addEventListener('click', () => {
+            pwaInstall.classList.remove('show');
+            localStorage.setItem('pwaInstallDismissed', 'true');
+        });
+        
+        // Calculator functionality
+        const problemInput = document.getElementById('problemInput');
+        const solveBtn = document.getElementById('solveBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const stepsContainer = document.getElementById('stepsContainer');
+        const graphContainer = document.getElementById('graphContainer');
+        const recentProblems = document.getElementById('recentProblems');
+        
+        // Add calculator button functionality
+        document.querySelectorAll('.calc-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = button.getAttribute('data-input');
+                
+                if (input === 'clear') {
+                    problemInput.value = '';
+                } else if (input === '=') {
+                    solveProblem();
+                } else {
+                    problemInput.value += input;
+                    problemInput.focus();
+                }
+            });
+        });
+        
+        // Solve button
+        solveBtn.addEventListener('click', solveProblem);
+        
+        // Clear button
+        clearBtn.addEventListener('click', () => {
+            problemInput.value = '';
+            stepsContainer.innerHTML = `
+                <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                    <i class="fas fa-lightbulb" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <h3>No Solution Yet</h3>
+                    <p>Enter a calculus problem and click "Solve" to see step-by-step solution</p>
+                </div>
+            `;
+            graphContainer.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--gray);">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <p>Graph will appear here when solving calculus problems</p>
+                    </div>
+                </div>
+            `;
+        });
+        
+        // Recent problems storage
+        let recentProblemsList = JSON.parse(localStorage.getItem('recentCalculusProblems')) || [];
+        updateRecentProblems();
+        
+        function solveProblem() {
+            const problem = problemInput.value.trim();
+            if (!problem) {
+                alert('Please enter a calculus problem');
+                return;
+            }
+            
+            // Save to recent problems
+            addToRecentProblems(problem);
+            
+            // Parse problem type
+            const problemType = detectProblemType(problem);
+            
+            // Generate step-by-step solution
+            const solution = generateSolution(problem, problemType);
+            
+            // Display steps
+            displaySteps(solution.steps);
+            
+            // Generate and display graph if applicable
+            if (solution.graphData) {
+                displayGraph(solution.graphData);
+            }
+            
+            // Update recent problems list
+            updateRecentProblems();
+        }
+        
+        function detectProblemType(problem) {
+            problem = problem.toLowerCase();
+            
+            if (problem.includes('derivative') || problem.includes('d/dx')) {
+                return 'derivative';
+            } else if (problem.includes('integral') || problem.includes('∫')) {
+                return 'integral';
+            } else if (problem.includes('limit') || problem.includes('lim')) {
+                return 'limit';
+            } else {
+                // Default to derivative
+                return 'derivative';
+            }
+        }
+        
+        function generateSolution(problem, type) {
+            // Extract function from problem
+            let functionText = extractFunction(problem, type);
+            
+            // For demo purposes, generate example solutions
+            // In a real app, you would use a symbolic math library like math.js or connect to a backend
+            
+            let steps = [];
+            let graphData = null;
+            
+            if (type === 'derivative') {
+                steps = generateDerivativeSteps(functionText);
+                graphData = generateDerivativeGraphData(functionText);
+            } else if (type === 'integral') {
+                steps = generateIntegralSteps(functionText);
+                graphData = generateIntegralGraphData(functionText);
+            } else if (type === 'limit') {
+                steps = generateLimitSteps(functionText);
+                graphData = generateLimitGraphData(functionText);
+            }
+            
+            return { steps, graphData };
+        }
+        
+        function extractFunction(problem, type) {
+            // Simple extraction for demo purposes
+            if (type === 'derivative') {
+                if (problem.includes('derivative of')) {
+                    return problem.replace('derivative of', '').trim();
+                } else if (problem.includes('d/dx')) {
+                    return problem.replace('d/dx', '').trim();
+                }
+            } else if (type === 'integral') {
+                if (problem.includes('integral of') || problem.includes('∫')) {
+                    return problem.replace('integral of', '').replace('∫', '').trim();
+                }
+            } else if (type === 'limit') {
+                if (problem.includes('limit')) {
+                    return problem.replace('limit', '').trim();
+                }
+            }
+            
+            // Default: return the whole problem
+            return problem;
+        }
+        
+        function generateDerivativeSteps(functionText) {
+            const steps = [];
+            
+            steps.push({
+                title: "Original Function",
+                content: `We are finding the derivative of: <br><div class="step-equation">f(x) = ${functionText}</div>`
+            });
+            
+            steps.push({
+                title: "Apply Derivative Rules",
+                content: `We'll apply standard differentiation rules:
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Power rule: d/dx(x^n) = n*x^(n-1)</li>
+                    <li>Sum rule: d/dx(f(x) + g(x)) = f'(x) + g'(x)</li>
+                    <li>Derivative of sin(x) is cos(x)</li>
+                    <li>Derivative of cos(x) is -sin(x)</li>
+                </ul>`
+            });
+            
+            // Parse function and create steps (simplified for demo)
+            if (functionText.includes('x^2')) {
+                steps.push({
+                    title: "Differentiate x²",
+                    content: `Using the power rule: <br><div class="step-equation">d/dx(x²) = 2x</div>`
+                });
+            }
+            
+            if (functionText.includes('3x')) {
+                steps.push({
+                    title: "Differentiate 3x",
+                    content: `d/dx(3x) = 3 (since d/dx(x) = 1)`
+                });
+            }
+            
+            if (functionText.includes('sin(x)')) {
+                steps.push({
+                    title: "Differentiate sin(x)",
+                    content: `d/dx(sin(x)) = cos(x)`
+                });
+            }
+            
+            steps.push({
+                title: "Combine Results",
+                content: `Combine all differentiated parts: <br><div class="step-equation">f'(x) = 2x + 3 + cos(x)</div>`
+            });
+            
+            steps.push({
+                title: "Final Result",
+                content: `The derivative is: <br><div class="step-equation" style="background-color: #e8f5e9; font-weight: bold;">f'(x) = 2x + 3 + cos(x)</div>`
+            });
+            
+            return steps;
+        }
+        
+        function generateIntegralSteps(functionText) {
+            const steps = [];
+            
+            steps.push({
+                title: "Original Function",
+                content: `We are finding the integral of: <br><div class="step-equation">∫ ${functionText} dx</div>`
+            });
+            
+            steps.push({
+                title: "Apply Integral Rules",
+                content: `We'll apply standard integration rules:
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Power rule: ∫ x^n dx = x^(n+1)/(n+1) + C</li>
+                    <li>Sum rule: ∫ (f(x) + g(x)) dx = ∫ f(x) dx + ∫ g(x) dx</li>
+                    <li>∫ sin(x) dx = -cos(x) + C</li>
+                    <li>∫ cos(x) dx = sin(x) + C</li>
+                </ul>`
+            });
+            
+            if (functionText.includes('x^2')) {
+                steps.push({
+                    title: "Integrate x²",
+                    content: `Using the power rule: <br><div class="step-equation">∫ x² dx = x³/3</div>`
+                });
+            }
+            
+            if (functionText.includes('3x')) {
+                steps.push({
+                    title: "Integrate 3x",
+                    content: `∫ 3x dx = (3/2)x²`
+                });
+            }
+            
+            if (functionText.includes('sin(x)')) {
+                steps.push({
+                    title: "Integrate sin(x)",
+                    content: `∫ sin(x) dx = -cos(x)`
+                });
+            }
+            
+            steps.push({
+                title: "Combine Results",
+                content: `Combine all integrated parts and add constant of integration: <br><div class="step-equation">∫ f(x) dx = x³/3 + (3/2)x² - cos(x) + C</div>`
+            });
+            
+            steps.push({
+                title: "Final Result",
+                content: `The integral is: <br><div class="step-equation" style="background-color: #e8f5e9; font-weight: bold;">∫ ${functionText} dx = x³/3 + (3/2)x² - cos(x) + C</div>`
+            });
+            
+            return steps;
+        }
+        
+        function generateLimitSteps(functionText) {
+            const steps = [];
+            
+            steps.push({
+                title: "Limit Expression",
+                content: `We are evaluating: <br><div class="step-equation">lim(x→0) ${functionText}</div>`
+            });
+            
+            steps.push({
+                title: "Direct Substitution",
+                content: `Try direct substitution of x = 0: <br><div class="step-equation">${functionText.replace(/x/g, '0')}</div>`
+            });
+            
+            steps.push({
+                title: "Simplify Expression",
+                content: `Simplify the expression algebraically or apply L'Hôpital's rule if needed.`
+            });
+            
+            steps.push({
+                title: "Apply Known Limit",
+                content: `For lim(x→0) sin(x)/x, we know the result is 1.`
+            });
+            
+            steps.push({
+                title: "Final Result",
+                content: `The limit is: <br><div class="step-equation" style="background-color: #e8f5e9; font-weight: bold;">lim(x→0) ${functionText} = 1</div>`
+            });
+            
+            return steps;
+        }
+        
+        function generateDerivativeGraphData(functionText) {
+            // Generate data for function and its derivative
+            const xValues = [];
+            const yValuesOriginal = [];
+            const yValuesDerivative = [];
+            
+            for (let i = -5; i <= 5; i += 0.1) {
+                xValues.push(i);
+                
+                // For demo: assume function is x^2 + 3x + sin(x)
+                const y = i*i + 3*i + Math.sin(i);
+                yValuesOriginal.push(y);
+                
+                // Derivative: 2x + 3 + cos(x)
+                const yDeriv = 2*i + 3 + Math.cos(i);
+                yValuesDerivative.push(yDeriv);
+            }
+            
+            return {
+                x: xValues,
+                y1: yValuesOriginal,
+                y2: yValuesDerivative,
+                title1: 'f(x) = ' + functionText,
+                title2: "f'(x) = 2x + 3 + cos(x)"
+            };
+        }
+        
+        function generateIntegralGraphData(functionText) {
+            // Generate data for function and its integral
+            const xValues = [];
+            const yValuesOriginal = [];
+            const yValuesIntegral = [];
+            
+            for (let i = -3; i <= 3; i += 0.1) {
+                xValues.push(i);
+                
+                // For demo: assume function is x^2 + 3x + sin(x)
+                const y = i*i + 3*i + Math.sin(i);
+                yValuesOriginal.push(y);
+                
+                // Integral: x^3/3 + (3/2)x^2 - cos(x)
+                const yIntegral = i*i*i/3 + (3/2)*i*i - Math.cos(i);
+                yValuesIntegral.push(yIntegral);
+            }
+            
+            return {
+                x: xValues,
+                y1: yValuesOriginal,
+                y2: yValuesIntegral,
+                title1: 'f(x) = ' + functionText,
+                title2: "F(x) = x³/3 + (3/2)x² - cos(x)"
+            };
+        }
+        
+        function generateLimitGraphData(functionText) {
+            // Generate data for limit visualization
+            const xValues = [];
+            const yValues = [];
+            
+            for (let i = -3; i <= 3; i += 0.1) {
+                if (Math.abs(i) > 0.01) { // Avoid division by near-zero
+                    xValues.push(i);
+                    // For demo: assume function is sin(x)/x
+                    const y = Math.sin(i)/i;
+                    yValues.push(y);
+                }
+            }
+            
+            return {
+                x: xValues,
+                y1: yValues,
+                title1: 'f(x) = sin(x)/x',
+                title2: "Approaches 1 as x→0"
+            };
+        }
+        
+        function displaySteps(steps) {
+            stepsContainer.innerHTML = '';
+            
+            steps.forEach((step, index) => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'step';
+                
+                stepElement.innerHTML = `
+                    <div class="step-header">
+                        <div class="step-title">
+                            <div class="step-number">${index + 1}</div>
+                            ${step.title}
+                        </div>
+                    </div>
+                    <div class="step-content">${step.content}</div>
+                `;
+                
+                stepsContainer.appendChild(stepElement);
+            });
+        }
+        
+        function displayGraph(graphData) {
+            let traces = [];
+            
+            if (graphData.y2) {
+                // Two traces (function and its derivative/integral)
+                traces = [
+                    {
+                        x: graphData.x,
+                        y: graphData.y1,
+                        mode: 'lines',
+                        name: graphData.title1,
+                        line: { color: 'blue', width: 3 }
+                    },
+                    {
+                        x: graphData.x,
+                        y: graphData.y2,
+                        mode: 'lines',
+                        name: graphData.title2,
+                        line: { color: 'red', width: 3, dash: 'dash' }
+                    }
+                ];
+            } else {
+                // One trace (for limit)
+                traces = [
+                    {
+                        x: graphData.x,
+                        y: graphData.y1,
+                        mode: 'lines',
+                        name: graphData.title1,
+                        line: { color: 'green', width: 3 }
+                    },
+                    {
+                        x: [0],
+                        y: [1],
+                        mode: 'markers',
+                        name: 'Limit point',
+                        marker: { color: 'red', size: 10 }
+                    }
+                ];
+            }
+            
+            const layout = {
+                title: 'Function Visualization',
+                xaxis: { title: 'x' },
+                yaxis: { title: 'y' },
+                height: 350,
+                margin: { t: 40, r: 20, b: 50, l: 60 },
+                paper_bgcolor: 'white',
+                plot_bgcolor: '#f8f9fa'
+            };
+            
+            Plotly.newPlot(graphContainer, traces, layout, {responsive: true});
+        }
+        
+        function addToRecentProblems(problem) {
+            // Remove if already exists
+            recentProblemsList = recentProblemsList.filter(p => p !== problem);
+            
+            // Add to beginning
+            recentProblemsList.unshift(problem);
+            
+            // Keep only last 5
+            if (recentProblemsList.length > 5) {
+                recentProblemsList = recentProblemsList.slice(0, 5);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('recentCalculusProblems', JSON.stringify(recentProblemsList));
+        }
+        
+        function updateRecentProblems() {
+            recentProblems.innerHTML = '';
+            
+            if (recentProblemsList.length === 0) {
+                recentProblems.innerHTML = `
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee; color: var(--gray);">
+                        <i class="far fa-clock"></i> No recent problems
+                    </li>
+                `;
+                return;
+            }
+            
+            recentProblemsList.forEach(problem => {
+                const li = document.createElement('li');
+                li.style.padding = '0.5rem 0';
+                li.style.borderBottom = '1px solid #eee';
+                li.innerHTML = `
+                    <i class="far fa-file-alt" style="margin-right: 8px; color: var(--primary);"></i>
+                    ${problem.substring(0, 40)}${problem.length > 40 ? '...' : ''}
+                `;
+                
+                li.addEventListener('click', () => {
+                    problemInput.value = problem;
+                    solveProblem();
+                });
+                
+                li.style.cursor = 'pointer';
+                li.title = 'Click to solve again';
+                
+                recentProblems.appendChild(li);
+            });
+        }
+        
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+        
+        // Example problems for quick testing
+        const exampleProblems = [
+            "derivative of x^2 + 3x + sin(x)",
+            "integral of x^2 + 3x + sin(x)",
+            "limit of sin(x)/x as x->0"
+        ];
+        
+        // Add example problems to input on click for demo
+        problemInput.addEventListener('focus', () => {
+            if (problemInput.value === '') {
+                problemInput.placeholder = "Try: " + exampleProblems[Math.floor(Math.random() * exampleProblems.length)];
+            }
+        });
+    </script>
+</body>
+</html>
